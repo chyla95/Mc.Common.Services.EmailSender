@@ -1,13 +1,24 @@
 ﻿using MailKit;
+using MailKit.Net.Smtp;
 using Mc.Common.Services.EmailSender.Abstractions.Clients;
 using Mc.Common.Services.EmailSender.Abstractions.Dtos;
 using Mc.Common.Services.EmailSender.Abstractions.Enums;
+using Mc.Common.Services.EmailSender.Abstractions.Resolvers;
 using MimeKit;
 
 namespace Mc.Common.Services.EmailSender;
 public abstract partial class EmailSenderClient : IEmailSenderClient
 {
-    public async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
+    protected readonly ISmtpClient _smtpClient;
+    protected readonly IEmailSenderClientSettingsResolver _emailSenderClientSettingsResolver;
+
+    public EmailSenderClient(IEmailSenderClientSettingsResolver emailSenderClientSettingsResolver)
+    {
+        _smtpClient = new SmtpClient();
+        _emailSenderClientSettingsResolver = emailSenderClientSettingsResolver;
+    }
+
+    public virtual async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
     {
         MimeMessage mimeMessage = await MapMimeMessage(emailMessage);
 

@@ -1,20 +1,14 @@
-﻿using MailKit.Net.Smtp;
-using MailKit.Security;
+﻿using MailKit.Security;
 using Mc.Common.Services.EmailSender.Abstractions.Enums;
-using Mc.Common.Services.EmailSender.Abstractions.Resolvers;
 using Mc.Common.Services.EmailSender.Abstractions.Settings;
 using System.Net;
 
 namespace Mc.Common.Services.EmailSender;
 public abstract partial class EmailSenderClient
 {
-    protected readonly ISmtpClient _smtpClient = new SmtpClient();
-
-    public abstract IEmailSenderClientSettingsResolver EmailSenderClientSettingsResolver { get; }
-
     protected internal async Task CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        EmailSenderClientSettings emailSenderClientSettings = await EmailSenderClientSettingsResolver.ResolveAsync(cancellationToken);
+        EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolver.ResolveAsync(cancellationToken);
 
         SecureSocketOptions secureSocketOptions = ConfigureSecureSocketOptions(emailSenderClientSettings.EncryptionType);
         await _smtpClient.ConnectAsync(
