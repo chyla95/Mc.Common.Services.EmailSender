@@ -6,6 +6,8 @@ using System.Net;
 namespace Mc.Common.Services.EmailSender;
 public abstract partial class EmailSenderClient
 {
+    protected bool _shouldExpectCreatedSession = false;
+
     protected internal async Task CreateSessionAsync(CancellationToken cancellationToken = default)
     {
         EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolver.ResolveAsync(cancellationToken);
@@ -23,11 +25,15 @@ public abstract partial class EmailSenderClient
             emailSenderClientSettings.Password
         );
         if (credentials is not null) await _smtpClient.AuthenticateAsync(credentials, cancellationToken);
+
+        _shouldExpectCreatedSession = true;
     }
 
     protected internal async Task ClearSessionAsync(CancellationToken cancellationToken = default)
     {
         await _smtpClient.DisconnectAsync(true, cancellationToken);
+
+        _shouldExpectCreatedSession = false;
     }
 
     private static SecureSocketOptions ConfigureSecureSocketOptions(EmailEncryptionType emailEncryptionType)

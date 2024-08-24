@@ -7,7 +7,7 @@ using Mc.Common.Services.EmailSender.Abstractions.Resolvers;
 using MimeKit;
 
 namespace Mc.Common.Services.EmailSender;
-public abstract partial class EmailSenderClient : IEmailSenderClient
+public abstract partial class EmailSenderClient : IEmailSenderClient, IDisposable
 {
     protected readonly ISmtpClient _smtpClient;
     protected readonly IEmailSenderClientSettingsResolver _emailSenderClientSettingsResolver;
@@ -20,7 +20,9 @@ public abstract partial class EmailSenderClient : IEmailSenderClient
 
     public virtual async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
     {
-        MimeMessage mimeMessage = await MapMimeMessage(emailMessage);
+        using MimeMessage mimeMessage = await MapMimeMessage(emailMessage);
+
+        if (!_shouldExpectCreatedSession) await CreateSessionAsync(cancellationToken);
 
         try
         {
@@ -84,5 +86,10 @@ public abstract partial class EmailSenderClient : IEmailSenderClient
 
         mimeMessage.Body = messageBodyBuilder.ToMessageBody();
         return mimeMessage;
+    }
+
+    public void Dispose()
+    {
+        _smtpClient.Dispose();
     }
 }
