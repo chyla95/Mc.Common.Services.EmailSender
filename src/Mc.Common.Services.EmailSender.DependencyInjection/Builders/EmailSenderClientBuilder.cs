@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Mc.Common.Services.EmailSender.DependencyInjection.Builders;
 public sealed class EmailSenderClientBuilder
 {
+    private object? _servicesKey;
     private Type? _emailSenderClientSettingsResolverType;
 
     private EmailSenderClientBuilder() { }
@@ -21,18 +22,26 @@ public sealed class EmailSenderClientBuilder
         return this;
     }
 
-    internal TEmailSenderClient Build<TEmailSenderClient>(IServiceCollection services, object servicesKey)
-        where TEmailSenderClient : EmailSenderClient, IEmailSenderClient
+    internal void RegisterServices(IServiceCollection services, object servicesKey)
     {
-        // Validate
+        // Validate dependencies
         if (_emailSenderClientSettingsResolverType is null) throw new NullReferenceException(nameof(_emailSenderClientSettingsResolverType));
 
         // Register dependencies
         services.AddKeyedTransient(typeof(IEmailSenderClientSettingsResolver), servicesKey, _emailSenderClientSettingsResolverType);
 
+        // Set services key
+        _servicesKey = servicesKey;
+    }
+
+    internal TEmailSenderClient Build<TEmailSenderClient>(IServiceProvider serviceProvider)
+        where TEmailSenderClient : EmailSenderClient, IEmailSenderClient
+    {
+        // Validate
+        if (_servicesKey is null) throw new NullReferenceException(nameof(_servicesKey));
+
         // build the MailSenderClient
-        IServiceProvider serviceProvider = services.BuildServiceProvider();
-        IEmailSenderClientSettingsResolver emailSenderClientSettingsResolver = serviceProvider.GetRequiredKeyedService<IEmailSenderClientSettingsResolver>(servicesKey);
+        IEmailSenderClientSettingsResolver emailSenderClientSettingsResolver = serviceProvider.GetRequiredKeyedService<IEmailSenderClientSettingsResolver>(_servicesKey);
         
         TEmailSenderClient? mailSenderClient = ActivatorUtilities.CreateInstance<TEmailSenderClient>(serviceProvider, emailSenderClientSettingsResolver);
         if (mailSenderClient is null) throw new NullReferenceException(nameof(mailSenderClient));

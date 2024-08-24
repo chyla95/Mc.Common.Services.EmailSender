@@ -20,7 +20,9 @@ public static partial class ServiceCollectionExtensions
 
         EmailSenderClientBuilder emailSenderClientBuilder = EmailSenderClientBuilder.Create();
         buildEmailSenderClient(emailSenderClientBuilder);
-        services.AddTransient(_ => emailSenderClientBuilder.Build<TEmailSenderClient>(services, servicesKey));
+        emailSenderClientBuilder.RegisterServices(services, servicesKey);
+
+        services.AddTransient<TEmailSenderClient>(serviceProvider => emailSenderClientBuilder.Build<TEmailSenderClient>(serviceProvider));
         services.AddScoped<IEmailSenderService<TEmailSenderClient>, EmailSenderService<TEmailSenderClient>>();
 
         return services;
