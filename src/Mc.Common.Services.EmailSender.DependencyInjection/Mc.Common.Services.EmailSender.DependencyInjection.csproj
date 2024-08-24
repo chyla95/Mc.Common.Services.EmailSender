@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mc.Common.Services.EmailSender.Abstractions\Mc.Common.Services.EmailSender.Abstractions.csproj" />
+    <ProjectReference Include="..\Mc.Common.Services.EmailSender\Mc.Common.Services.EmailSender.csproj" />
   </ItemGroup>
 
 </Project>
