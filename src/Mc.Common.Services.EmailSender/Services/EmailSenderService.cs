@@ -1,4 +1,5 @@
-﻿using Mc.Common.Services.EmailSender.Abstractions.Clients;
+﻿using Mc.Common.Services.EmailSender.Abstractions.Builders;
+using Mc.Common.Services.EmailSender.Abstractions.Clients;
 using Mc.Common.Services.EmailSender.Abstractions.Dtos;
 using Mc.Common.Services.EmailSender.Abstractions.Services;
 
@@ -16,5 +17,13 @@ public sealed class EmailSenderService<TEmailSenderClient> : IEmailSenderService
     public async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
     {
         await _emailSenderClient.SendMessageAsync(emailMessage, cancellationToken);
+    }
+
+    public async Task SendMessageAsync(Action<EmailMessageBuilder> buildEmailMessage, CancellationToken cancellationToken = default)
+    {
+        EmailMessageBuilder emailMessageBuilder = EmailMessageBuilder.Create();
+        buildEmailMessage(emailMessageBuilder);
+
+        await _emailSenderClient.SendMessageAsync(emailMessageBuilder.Build(), cancellationToken);
     }
 }

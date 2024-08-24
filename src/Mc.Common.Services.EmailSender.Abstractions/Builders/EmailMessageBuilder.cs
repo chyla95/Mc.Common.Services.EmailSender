@@ -6,6 +6,13 @@ public sealed class EmailMessageBuilder
 {
     private readonly EmailMessageDto _emailMessage = new();
 
+    private EmailMessageBuilder() { }
+
+    public static EmailMessageBuilder Create()
+    {
+        return new();
+    }
+
     public EmailMessageBuilder SetSubject(string subject)
     {
         if (!string.IsNullOrWhiteSpace(_emailMessage.Subject)) throw new InvalidOperationException($"Field: '{nameof(_emailMessage.Subject)}' cannot be set twice");
@@ -52,7 +59,7 @@ public sealed class EmailMessageBuilder
         return this;
     }
 
-    public EmailMessageDto CreateEmailMessage()
+    public EmailMessageDto Build()
     {
         if (_emailMessage.Senders.Count < 1) throw new InvalidOperationException("There should be at least one message sender defined");
         if (_emailMessage.Recipients.Count < 1) throw new InvalidOperationException("There should be at least one message recipent defined");
