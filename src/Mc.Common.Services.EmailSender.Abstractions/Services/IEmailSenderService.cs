@@ -1,11 +1,9 @@
 ﻿using Mc.Common.Services.EmailSender.Abstractions.Builders;
-using Mc.Common.Services.EmailSender.Abstractions.Clients;
-using Mc.Common.Services.EmailSender.Abstractions.Dtos;
+using Mc.Common.Services.EmailSender.Abstractions.Models;
 
 namespace Mc.Common.Services.EmailSender.Abstractions.Services;
-public interface IEmailSenderService<TEmailSenderClient>
-    where TEmailSenderClient : class, IEmailSenderClient
+public interface IEmailSenderService
 {
-    Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default);
+    Task SendMessageAsync(EmailMessage emailMessage, CancellationToken cancellationToken = default);
     Task SendMessageAsync(Action<EmailMessageBuilder> buildEmailMessage, CancellationToken cancellationToken = default);
 }

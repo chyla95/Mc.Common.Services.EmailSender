@@ -4,13 +4,13 @@ using Mc.Common.Services.EmailSender.Abstractions.Settings;
 using System.Net;
 
 namespace Mc.Common.Services.EmailSender;
-public abstract partial class EmailSenderClient
+public partial class EmailSenderClient
 {
     protected bool _shouldExpectCreatedSession = false;
 
     protected internal async Task CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolver.ResolveAsync(cancellationToken);
+        EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolver.ResolveEmailSenderClientSettingsAsync(cancellationToken);
 
         SecureSocketOptions secureSocketOptions = ConfigureSecureSocketOptions(emailSenderClientSettings.EncryptionType);
         await _smtpClient.ConnectAsync(

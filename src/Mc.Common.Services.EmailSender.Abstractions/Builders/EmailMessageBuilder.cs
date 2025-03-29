@@ -1,10 +1,10 @@
-﻿using Mc.Common.Services.EmailSender.Abstractions.Dtos;
-using Mc.Common.Services.EmailSender.Abstractions.Enums;
+﻿using Mc.Common.Services.EmailSender.Abstractions.Enums;
+using Mc.Common.Services.EmailSender.Abstractions.Models;
 
 namespace Mc.Common.Services.EmailSender.Abstractions.Builders;
 public sealed class EmailMessageBuilder
 {
-    private readonly EmailMessageDto _emailMessage = new();
+    private readonly EmailMessage _emailMessage = new();
 
     private EmailMessageBuilder() { }
 
@@ -25,41 +25,41 @@ public sealed class EmailMessageBuilder
     {
         if (_emailMessage.Body is not null) throw new InvalidOperationException($"Field: '{nameof(_emailMessage.Body)}' cannot be set twice");
 
-        _emailMessage.Body = new EmailBodyDto(value, emailContentType);
+        _emailMessage.Body = new EmailBody(value, emailContentType);
         return this;
     }
 
     public EmailMessageBuilder AddSender(string address, string? name = null)
     {
-        _emailMessage.Senders.Add(new EmailAddressDto(name ?? address, address));
+        _emailMessage.Senders.Add(new EmailAddress(name ?? address, address));
         return this;
     }
 
     public EmailMessageBuilder AddRecipient(string address, string? name = null)
     {
-        _emailMessage.Recipients.Add(new EmailAddressDto(name ?? address, address));
+        _emailMessage.Recipients.Add(new EmailAddress(name ?? address, address));
         return this;
     }
 
     public EmailMessageBuilder AddCcRecipient(string address, string? name = null)
     {
-        _emailMessage.CcRecipients.Add(new EmailAddressDto(name ?? address, address));
+        _emailMessage.CcRecipients.Add(new EmailAddress(name ?? address, address));
         return this;
     }
 
     public EmailMessageBuilder AddBccRecipient(string address, string? name = null)
     {
-        _emailMessage.BccRecipients.Add(new EmailAddressDto(name ?? address, address));
+        _emailMessage.BccRecipients.Add(new EmailAddress(name ?? address, address));
         return this;
     }
 
     public EmailMessageBuilder AddAttachment(Stream fileStream, string name)
     {
-        _emailMessage.Attachments.Add(new EmailAttachmentDto(fileStream, name));
+        _emailMessage.Attachments.Add(new EmailAttachment(fileStream, name));
         return this;
     }
 
-    public EmailMessageDto Build()
+    public EmailMessage Build()
     {
         if (_emailMessage.Senders.Count < 1) throw new InvalidOperationException("There should be at least one message sender defined");
         if (_emailMessage.Recipients.Count < 1) throw new InvalidOperationException("There should be at least one message recipent defined");

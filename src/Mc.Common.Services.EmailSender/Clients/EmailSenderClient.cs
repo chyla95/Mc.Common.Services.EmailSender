@@ -1,24 +1,24 @@
 ﻿using MailKit;
 using MailKit.Net.Smtp;
 using Mc.Common.Services.EmailSender.Abstractions.Clients;
-using Mc.Common.Services.EmailSender.Abstractions.Dtos;
 using Mc.Common.Services.EmailSender.Abstractions.Enums;
-using Mc.Common.Services.EmailSender.Abstractions.Resolvers;
+using Mc.Common.Services.EmailSender.Abstractions.Models;
+using Mc.Common.Services.EmailSender.Abstractions.Strategies;
 using MimeKit;
 
 namespace Mc.Common.Services.EmailSender;
-public abstract partial class EmailSenderClient : IEmailSenderClient, IDisposable
+public partial class EmailSenderClient : IEmailSenderClient, IDisposable
 {
     protected readonly ISmtpClient _smtpClient;
-    protected readonly IEmailSenderClientSettingsResolver _emailSenderClientSettingsResolver;
+    protected readonly IEmailSenderClientSettingsResolvingStrategy _emailSenderClientSettingsResolver;
 
-    public EmailSenderClient(IEmailSenderClientSettingsResolver emailSenderClientSettingsResolver)
+    public EmailSenderClient(IEmailSenderClientSettingsResolvingStrategy emailSenderClientSettingsResolver)
     {
         _smtpClient = new SmtpClient();
         _emailSenderClientSettingsResolver = emailSenderClientSettingsResolver;
     }
 
-    public virtual async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(EmailMessage emailMessage, CancellationToken cancellationToken = default)
     {
         using MimeMessage mimeMessage = await MapMimeMessage(emailMessage);
 
@@ -35,7 +35,7 @@ public abstract partial class EmailSenderClient : IEmailSenderClient, IDisposabl
         }
     }
 
-    private async static Task<MimeMessage> MapMimeMessage(EmailMessageDto emailMessage)
+    private async static Task<MimeMessage> MapMimeMessage(EmailMessage emailMessage)
     {
         MimeMessage mimeMessage = new();
 
@@ -78,7 +78,7 @@ public abstract partial class EmailSenderClient : IEmailSenderClient, IDisposabl
         // Add message attachments
         if (emailMessage.Attachments.Count > 0)
         {
-            foreach (EmailAttachmentDto attachment in emailMessage.Attachments)
+            foreach (EmailAttachment attachment in emailMessage.Attachments)
             {
                 await messageBodyBuilder.Attachments.AddAsync(attachment.Name, attachment.FileStream);
             }

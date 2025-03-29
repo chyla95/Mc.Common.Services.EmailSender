@@ -1,7 +1,7 @@
-﻿using Mc.Common.Services.EmailSender.Abstractions.Dtos;
+﻿using Mc.Common.Services.EmailSender.Abstractions.Models;
 
 namespace Mc.Common.Services.EmailSender.Abstractions.Clients;
 public interface IEmailSenderClient
 {
-    Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default);
+    Task SendMessageAsync(EmailMessage emailMessage, CancellationToken cancellationToken = default);
 }

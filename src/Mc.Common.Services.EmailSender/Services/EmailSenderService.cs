@@ -1,20 +1,19 @@
 ﻿using Mc.Common.Services.EmailSender.Abstractions.Builders;
 using Mc.Common.Services.EmailSender.Abstractions.Clients;
-using Mc.Common.Services.EmailSender.Abstractions.Dtos;
+using Mc.Common.Services.EmailSender.Abstractions.Models;
 using Mc.Common.Services.EmailSender.Abstractions.Services;
 
 namespace Mc.Common.Services.EmailSender.Services;
-public sealed class EmailSenderService<TEmailSenderClient> : IEmailSenderService<TEmailSenderClient>
-    where TEmailSenderClient : class, IEmailSenderClient
+public abstract class EmailSenderService : IEmailSenderService
 {
-    private readonly TEmailSenderClient _emailSenderClient;
+    private readonly IEmailSenderClient _emailSenderClient;
 
-    public EmailSenderService(TEmailSenderClient emailSenderClient)
+    public EmailSenderService(IEmailSenderClient emailSenderClient)
     {
         _emailSenderClient = emailSenderClient;
     }
 
-    public async Task SendMessageAsync(EmailMessageDto emailMessage, CancellationToken cancellationToken = default)
+    public async Task SendMessageAsync(EmailMessage emailMessage, CancellationToken cancellationToken = default)
     {
         await _emailSenderClient.SendMessageAsync(emailMessage, cancellationToken);
     }
