@@ -1,19 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Mc.Common.DependencyInjection" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Mc.Common.DependencyInjection" Version="1.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Mc.Common.Services.EmailSender.Abstractions\Mc.Common.Services.EmailSender.Abstractions.csproj" />
-    <ProjectReference Include="..\Mc.Common.Services.EmailSender\Mc.Common.Services.EmailSender.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Mc.Common.Services.EmailSender.Abstractions\Mc.Common.Services.EmailSender.Abstractions.csproj" />
+		<ProjectReference Include="..\Mc.Common.Services.EmailSender\Mc.Common.Services.EmailSender.csproj" />
+	</ItemGroup>
 
 </Project>
