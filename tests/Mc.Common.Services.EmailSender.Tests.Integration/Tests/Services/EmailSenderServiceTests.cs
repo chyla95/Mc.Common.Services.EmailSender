@@ -21,7 +21,7 @@ public class EmailSenderServiceTests : IClassFixture<ServiceProviderFixture>
     }
 
     [Fact]
-    public async Task __()
+    public async Task SendMessageAsync_ShouldSendAnEmail()
     {
         EmailMessage message = EmailMessageBuilder
             .Create()
