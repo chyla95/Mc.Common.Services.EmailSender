@@ -1,26 +1,28 @@
 ﻿using MailKit;
 using MailKit.Net.Smtp;
 using Mc.Common.Services.EmailSender.Abstractions.Clients;
-using Mc.Common.Services.EmailSender.Abstractions.Enums;
 using Mc.Common.Services.EmailSender.Abstractions.Models;
 using Mc.Common.Services.EmailSender.Abstractions.Strategies;
+using Mc.Common.Services.EmailSender.Extensions.Models;
 using MimeKit;
 
 namespace Mc.Common.Services.EmailSender;
 public partial class EmailSenderClient : IEmailSenderClient, IDisposable
 {
-    protected readonly ISmtpClient _smtpClient;
-    protected readonly IEmailSenderClientSettingsResolvingStrategy _emailSenderClientSettingsResolver;
+    private bool _disposedValue;
 
-    public EmailSenderClient(IEmailSenderClientSettingsResolvingStrategy emailSenderClientSettingsResolver)
+    protected readonly ISmtpClient _smtpClient;
+    protected readonly IEmailSenderClientSettingsResolvingStrategy _emailSenderClientSettingsResolvingStrategy;
+
+    public EmailSenderClient(IEmailSenderClientSettingsResolvingStrategy emailSenderClientSettingsResolvingStrategy)
     {
         _smtpClient = new SmtpClient();
-        _emailSenderClientSettingsResolver = emailSenderClientSettingsResolver;
+        _emailSenderClientSettingsResolvingStrategy = emailSenderClientSettingsResolvingStrategy;
     }
 
     public async Task SendMessageAsync(EmailMessage emailMessage, CancellationToken cancellationToken = default)
     {
-        using MimeMessage mimeMessage = await MapMimeMessage(emailMessage);
+        using MimeMessage mimeMessage = await emailMessage.ToMimeMessageAsync();
 
         if (!_shouldExpectCreatedSession) await CreateSessionAsync(cancellationToken);
 
@@ -35,61 +37,26 @@ public partial class EmailSenderClient : IEmailSenderClient, IDisposable
         }
     }
 
-    private async static Task<MimeMessage> MapMimeMessage(EmailMessage emailMessage)
+    protected virtual void Dispose(bool disposing)
     {
-        MimeMessage mimeMessage = new();
-
-        // Add message senders
-        IEnumerable<MailboxAddress> sendersAddresses = emailMessage.Senders.Select(s => new MailboxAddress(s.Name, s.Address));
-        mimeMessage.From.AddRange(sendersAddresses);
-
-        // Add message recipients
-        IEnumerable<MailboxAddress> recipientsAddresses = emailMessage.Recipients.Select(s => new MailboxAddress(s.Name, s.Address));
-        mimeMessage.To.AddRange(recipientsAddresses);
-
-        // Add message Cc
-        IEnumerable<MailboxAddress> ccRecipients = emailMessage.CcRecipients.Select(s => new MailboxAddress(s.Name, s.Address));
-        mimeMessage.Cc.AddRange(ccRecipients);
-
-        // Add message Bcc
-        IEnumerable<MailboxAddress> bccRecipients = emailMessage.BccRecipients.Select(s => new MailboxAddress(s.Name, s.Address));
-        mimeMessage.Bcc.AddRange(bccRecipients);
-
-        // Add message subject
-        mimeMessage.Subject = emailMessage.Subject;
-
-        BodyBuilder messageBodyBuilder = new();
-
-        // Add message content
-        switch (emailMessage.Body?.Type)
+        if (!_disposedValue)
         {
-            case EmailBodyType.Text:
-                messageBodyBuilder.TextBody = emailMessage.Body.Content;
-                break;
-
-            case EmailBodyType.Html:
-                messageBodyBuilder.HtmlBody = emailMessage.Body.Content;
-                break;
-
-            default:
-                throw new InvalidOperationException($"Unsupported {nameof(EmailBodyType)}");
-        }
-
-        // Add message attachments
-        if (emailMessage.Attachments.Count > 0)
-        {
-            foreach (EmailAttachment attachment in emailMessage.Attachments)
+            if (disposing)
             {
-                await messageBodyBuilder.Attachments.AddAsync(attachment.Name, attachment.FileStream);
+                // Dispose managed state (managed objects)
+                _smtpClient.Dispose();
             }
-        }
 
-        mimeMessage.Body = messageBodyBuilder.ToMessageBody();
-        return mimeMessage;
+            // Free unmanaged resources (unmanaged objects) and override finalizer
+            // Set large fields to null
+            _disposedValue = true;
+        }
     }
 
     public void Dispose()
     {
-        _smtpClient.Dispose();
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

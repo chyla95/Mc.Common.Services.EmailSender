@@ -21,7 +21,7 @@ public class EmailSenderServiceTests : IClassFixture<ServiceProviderFixture>
     }
 
     [Fact]
-    public async Task SendMessageAsync_ShouldSendAnEmail()
+    public async Task SendMessageAsync_ShouldSendAnEmail() // TODO: cleanup this whole file and write more tests!
     {
         EmailMessage message = EmailMessageBuilder
             .Create()
@@ -30,13 +30,14 @@ public class EmailSenderServiceTests : IClassFixture<ServiceProviderFixture>
             .AddRecipient(_testDataGeneratorService.GenerateEmail(), _testDataGeneratorService.GenerateUsername())
             .AddRecipient(_testDataGeneratorService.GenerateEmail(), _testDataGeneratorService.GenerateUsername())
             .SetSubject(_testDataGeneratorService.GenerateText())
-            .SetBody(HtmlMessageBody, EmailBodyType.Html).Build();
+            .SetBody(_htmlMessageBody, EmailBodyType.Html)
+            .Build();
 
         await _primaryEmailSenderService.SendMessageAsync(message);
 
         //
-        HttpService httpService = new HttpService();
-        ICollection<Email> emails = [.. await httpService.GetEmails()];
+        HttpService httpService = new();
+        ICollection<Email> emails = [.. await HttpService.GetEmails()];
 
         foreach (EmailAddress recipient in message.Recipients)
         {
@@ -46,7 +47,7 @@ public class EmailSenderServiceTests : IClassFixture<ServiceProviderFixture>
         Assert.Equal(2, emails.Count(e => e.Subject == message.Subject));
     }
 
-    private const string HtmlMessageBody = @"<!DOCTYPE html>
+    private const string _htmlMessageBody = @"<!DOCTYPE html>
         <html lang=""en"">
         <head>
             <meta charset=""UTF-8"">
@@ -68,7 +69,7 @@ public class EmailSenderServiceTests : IClassFixture<ServiceProviderFixture>
 
 internal sealed class HttpService
 {
-    public async Task<IEnumerable<Email>> GetEmails()
+    public static async Task<IEnumerable<Email>> GetEmails()
     {
         using HttpClient client = new();
 

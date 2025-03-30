@@ -14,7 +14,7 @@ public class ServiceProviderFixture : FixtureBase
         ServiceCollection serviceCollection = new();
 
         serviceCollection.AddEmailSender<IPrimaryEmailSenderService, PrimaryEmailSenderService>(configureEmailSender => configureEmailSender
-            .WithEmailSenderSettingsResolvingStrategy<PrimaryEmailSenderClientSettingsResolvingStrategy>());
+            .WithEmailSenderClientSettingsResolvingStrategy<PrimaryEmailSenderClientSettingsResolvingStrategy>());
 
         serviceCollection.AddTransient<ITestDataGeneratorService, TestDataGeneratorService>();
 

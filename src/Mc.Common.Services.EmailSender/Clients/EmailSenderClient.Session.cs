@@ -10,7 +10,7 @@ public partial class EmailSenderClient
 
     protected internal async Task CreateSessionAsync(CancellationToken cancellationToken = default)
     {
-        EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolver.ResolveEmailSenderClientSettingsAsync(cancellationToken);
+        EmailSenderClientSettings emailSenderClientSettings = await _emailSenderClientSettingsResolvingStrategy.ResolveEmailSenderClientSettingsAsync(cancellationToken);
 
         SecureSocketOptions secureSocketOptions = ConfigureSecureSocketOptions(emailSenderClientSettings.EncryptionType);
         await _smtpClient.ConnectAsync(

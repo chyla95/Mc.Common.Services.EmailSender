@@ -10,7 +10,7 @@ public sealed class EmailSenderServiceCollectionConfigurator
 {
     private readonly IServiceCollection _serviceCollection;
 
-    private Type? _emailSenderSettingsResolvingStrategyType;
+    private Type? _emailSenderClientSettingsResolvingStrategy;
 
     private EmailSenderServiceCollectionConfigurator(IServiceCollection serviceCollection)
     {
@@ -23,10 +23,10 @@ public sealed class EmailSenderServiceCollectionConfigurator
         return emailSenderServiceCollectionConfigurator;
     }
 
-    public EmailSenderServiceCollectionConfigurator WithEmailSenderSettingsResolvingStrategy<TEmailSenderClientSettingsResolver>()
-        where TEmailSenderClientSettingsResolver : class, IEmailSenderClientSettingsResolvingStrategy
+    public EmailSenderServiceCollectionConfigurator WithEmailSenderClientSettingsResolvingStrategy<TEmailSenderClientSettingsResolvingStrategy>()
+        where TEmailSenderClientSettingsResolvingStrategy : class, IEmailSenderClientSettingsResolvingStrategy
     {
-        _emailSenderSettingsResolvingStrategyType = typeof(TEmailSenderClientSettingsResolver);
+        _emailSenderClientSettingsResolvingStrategy = typeof(TEmailSenderClientSettingsResolvingStrategy);
         return this;
     }
 
@@ -34,12 +34,12 @@ public sealed class EmailSenderServiceCollectionConfigurator
         where TAbstraction : class, IEmailSenderService
         where TImplementation : EmailSenderService, TAbstraction
     {
-        if (_emailSenderSettingsResolvingStrategyType is null)
+        if (_emailSenderClientSettingsResolvingStrategy is null)
             throw new NullReferenceException($"{nameof(IEmailSenderClientSettingsResolvingStrategy)} is required");
 
         string serviceKey = typeof(TImplementation).Name;
 
-        _serviceCollection.AddTransientResolvedFromKeyedServices(typeof(IEmailSenderClientSettingsResolvingStrategy), serviceKey, _emailSenderSettingsResolvingStrategyType);
+        _serviceCollection.AddTransientResolvedFromKeyedServices(typeof(IEmailSenderClientSettingsResolvingStrategy), serviceKey, _emailSenderClientSettingsResolvingStrategy);
         _serviceCollection.AddKeyedTransientResolvedFromKeyedServices<IEmailSenderClient, EmailSenderClient>(serviceKey);
         _serviceCollection.AddTransientResolvedFromKeyedServices<TAbstraction, TImplementation>(serviceKey);
     }
